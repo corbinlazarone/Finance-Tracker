@@ -9,5 +9,4 @@ public class FintrackerApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(FintrackerApplication.class, args);
 	}
-
 }
