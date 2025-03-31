@@ -1,4 +1,4 @@
-package com.example.fintracker;
+package com.fintrackerapi.fintracker;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

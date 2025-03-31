@@ -1,4 +1,4 @@
-package com.example.fintracker.entities;
+package com.fintrackerapi.fintracker.entities;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;

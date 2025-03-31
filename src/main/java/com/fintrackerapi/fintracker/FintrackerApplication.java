@@ -1,4 +1,4 @@
-package com.example.fintracker;
+package com.fintrackerapi.fintracker;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
