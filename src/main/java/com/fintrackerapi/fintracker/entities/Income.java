@@ -81,7 +81,7 @@ public class Income {
         return isBiweekly;
     }
 
-    public void setBiweekly(boolean biweekly) {
+    public void setIsBiweekly(boolean biweekly) {
         isBiweekly = biweekly;
     }
 

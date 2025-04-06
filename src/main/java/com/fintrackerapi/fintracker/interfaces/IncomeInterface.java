@@ -10,5 +10,7 @@ import java.util.UUID;
 
 public interface IncomeInterface {
     List<IncomeResponse> getIncomeSources(UUID userId);
-    Boolean createIncomeSource(IncomeDto incomeDto);
+    IncomeResponse createIncomeSource(IncomeDto incomeDto);
+    IncomeResponse updateIncomeSource(UUID incomeSourceId, IncomeDto updatedIncomeSource);
+    boolean deleteIncomeSource(UUID userId, UUID incomeSourceId);
 }

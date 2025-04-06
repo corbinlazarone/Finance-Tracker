@@ -44,8 +44,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         try {
-            // Skip authentication for permitted paths like /auth/**
-            if (request.getRequestURI().startsWith("/auth/")) {
+            String uri = request.getRequestURI();
+            if (uri.startsWith("/auth/") ||
+                    uri.startsWith("/v3/api-docs") ||
+                    uri.startsWith("/swagger-ui") ||
+                    uri.startsWith("/webjars/")) {
                 filterChain.doFilter(request, response);
                 return;
             }

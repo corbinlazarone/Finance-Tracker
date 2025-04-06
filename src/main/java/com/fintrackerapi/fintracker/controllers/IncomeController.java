@@ -1,12 +1,13 @@
 package com.fintrackerapi.fintracker.controllers;
 
+import com.fintrackerapi.fintracker.dtos.IncomeDto;
+import com.fintrackerapi.fintracker.entities.User;
 import com.fintrackerapi.fintracker.responses.IncomeResponse;
 import com.fintrackerapi.fintracker.services.IncomeService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,9 +21,31 @@ public class IncomeController {
         this.incomeService = incomeService;
     }
 
-    @GetMapping("/")
+    @GetMapping("/user")
     public ResponseEntity<List<IncomeResponse>> allUserIncomeSources(@RequestParam UUID userId) {
         List<IncomeResponse> incomeSources = incomeService.getIncomeSources(userId);
         return ResponseEntity.ok(incomeSources);
+    }
+
+    @PostMapping("/new")
+    public ResponseEntity<IncomeResponse> createNewIncomeItem(@RequestBody IncomeDto incomeDto) {
+        IncomeResponse newIncomeItem = incomeService.createIncomeSource(incomeDto);
+        return ResponseEntity.status(201).body(newIncomeItem);
+    }
+
+    @PutMapping("/update/{incomeSourceId}")
+    public ResponseEntity<IncomeResponse> updateIncomeItem(@PathVariable UUID incomeSourceId, @RequestBody IncomeDto incomeDto) {
+        IncomeResponse IncomeItemToUpdate = incomeService.updateIncomeSource(incomeSourceId, incomeDto);
+        return ResponseEntity.ok(IncomeItemToUpdate);
+    }
+
+    @DeleteMapping("/delete/{incomeSourceId}")
+    public ResponseEntity<Boolean> deleteIncomeSource(@PathVariable UUID incomeSourceId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        User currentUser = (User) authentication.getPrincipal();
+
+        boolean result = incomeService.deleteIncomeSource(currentUser.getId(), incomeSourceId);
+        return ResponseEntity.ok(result);
     }
 }
