@@ -1,6 +1,7 @@
 package com.fintrackerapi.fintracker.configs;
 
 import com.fintrackerapi.fintracker.services.JwtService;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import jakarta.servlet.FilterChain;
@@ -42,50 +43,61 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        String token = null;
+        try {
+            // Skip authentication for permitted paths like /auth/**
+            if (request.getRequestURI().startsWith("/auth/")) {
+                filterChain.doFilter(request, response);
+                return;
+            }
 
-        // Try to extract JWT from the Authorization header
-        final String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-        } else {
-            // Try to extract JWT from cookies if Authorization header is not present
-            Cookie[] cookies = request.getCookies();
-            if (cookies != null) {
-                for (Cookie cookie : cookies) {
-                    if ("auth-token".equals(cookie.getName())) {
-                        token = cookie.getValue();
-                        break;
+            String token = null;
+
+            // Try to extract JWT from the Authorization header
+            final String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                token = authHeader.substring(7);
+            } else {
+                // Try to extract JWT from cookies if Authorization header is not present
+                Cookie[] cookies = request.getCookies();
+                if (cookies != null) {
+                    for (Cookie cookie : cookies) {
+                        if ("auth-token".equals(cookie.getName())) {
+                            token = cookie.getValue();
+                            break;
+                        }
                     }
                 }
             }
-        }
 
-        if (token != null) {
-            try {
-                final String userEmail = jwtService.extractUsername(token);
-
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-                if (userEmail != null && authentication == null) {
-                    UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-
-                    if (jwtService.isTokenValid(token, userDetails)) {
-                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
-
-                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(authToken);
-                    }
-                }
-            } catch (Exception exception) {
-                handlerExceptionResolver.resolveException(request, response, null, exception);
+            if (token == null) {
+                throw new AccessDeniedException("Authentication required");
             }
-        }
 
-        filterChain.doFilter(request, response);
+            final String userEmail = jwtService.extractUsername(token);
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            if (userEmail != null && authentication == null) {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+
+                if (jwtService.isTokenValid(token, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                } else {
+                    throw new AccessDeniedException("Invalid token");
+                }
+            }
+
+            filterChain.doFilter(request, response);
+        } catch (Exception exception) {
+            // Use the handlerExceptionResolver to dispatch the exception to your global handler
+            handlerExceptionResolver.resolveException(request, response, null, exception);
+        }
     }
 }

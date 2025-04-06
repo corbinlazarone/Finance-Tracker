@@ -1,15 +1,16 @@
-package com.fintrackerapi.fintracker.dtos;
+package com.fintrackerapi.fintracker.responses;
 
 import java.util.Date;
+import java.util.UUID;
 
-public class UserDto {
-    private Integer id;
+public class UserResponse {
+    private UUID id;
     private String fullName;
     private String email;
     private Date createdAt;
     private String username;
 
-    public UserDto(Integer id, String fullName, String email, String username, Date createdAt) {
+    public UserResponse(UUID id, String fullName, String email, String username, Date createdAt) {
         this.id = id;
         this.fullName = fullName;
         this.email = email;
@@ -17,11 +18,11 @@ public class UserDto {
         this.createdAt = createdAt;
     }
 
-    public Integer getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
