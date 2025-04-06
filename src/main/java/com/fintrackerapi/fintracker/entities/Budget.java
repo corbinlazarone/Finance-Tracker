@@ -9,6 +9,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Table(name = "Budget")
@@ -23,6 +25,12 @@ public class Budget {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", unique = true, nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "budget", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Category> categories = new HashSet<>();
+
+    @OneToMany(mappedBy = "budget", cascade = CascadeType.ALL)
+    private Set<Transaction> transactions = new HashSet<>();
 
     @Column(nullable = false)
     private String name;
@@ -55,7 +63,6 @@ public class Budget {
     private Date updatedAt;
 
     // getters and setters
-    // Getters and setters
     public UUID getId() {
         return id;
     }
@@ -70,6 +77,22 @@ public class Budget {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Set<Category> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(Set<Category> categories) {
+        this.categories = categories;
+    }
+
+    public Set<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(Set<Transaction> transactions) {
+        this.transactions = transactions;
     }
 
     public String getName() {

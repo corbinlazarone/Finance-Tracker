@@ -1,6 +1,7 @@
 package com.fintrackerapi.fintracker.responses;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.UUID;
 
 public class IncomeResponse {
@@ -10,14 +11,20 @@ public class IncomeResponse {
     private boolean isBiweekly;
     private Integer paymentDateOne;
     private Integer paymentDateTwo;
+    private final Date createdAt;
+    private final Date updatedAt;
 
-    public IncomeResponse(UUID id,String name, BigDecimal amount, boolean isBiweekly, Integer paymentDateOne, Integer paymentDateTwo) {
+    public IncomeResponse(UUID id, String name, BigDecimal amount, boolean isBiweekly,
+                          Integer paymentDateOne, Integer paymentDateTwo,
+                          Date createdAt, Date updatedAt) {
         this.id = id;
         this.name = name;
         this.amount = amount;
         this.isBiweekly = isBiweekly;
         this.paymentDateOne = paymentDateOne;
         this.paymentDateTwo = paymentDateTwo;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     // getters and setters
@@ -67,5 +74,13 @@ public class IncomeResponse {
 
     public void setPaymentDateTwo(Integer paymentDateTwo) {
         this.paymentDateTwo = paymentDateTwo;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
     }
 }

@@ -40,7 +40,7 @@ public class IncomeService implements IncomeInterface {
         Income newIncome = new Income();
         newIncome.setName(incomeDto.getName());
         newIncome.setAmount(incomeDto.getAmount());
-        newIncome.setIsBiweekly(incomeDto.isBiweekly());
+        newIncome.setIsBiweekly(incomeDto.IsBiweekly());
 
         if (incomeDto.getPaymentDateOne() < 1
                 || incomeDto.getPaymentDateOne() > 31
@@ -62,9 +62,9 @@ public class IncomeService implements IncomeInterface {
     }
 
     @Override
-    public IncomeResponse updateIncomeSource(UUID userId, UUID incomeSourceId, IncomeDto updatedIncomeSource) {
+    public IncomeResponse updateIncomeSource(UUID userId, IncomeDto updatedIncomeSource) {
         // Check if the income source exists
-        Income income = incomeRepo.findById(incomeSourceId)
+        Income income = incomeRepo.findById(updatedIncomeSource.getId())
                 .orElseThrow(() -> new RuntimeException("Income source does not exits"));
 
         // Check if income source belongs to user
@@ -82,7 +82,7 @@ public class IncomeService implements IncomeInterface {
 
         income.setName(updatedIncomeSource.getName());
         income.setAmount(updatedIncomeSource.getAmount());
-        income.setIsBiweekly(updatedIncomeSource.isBiweekly());
+        income.setIsBiweekly(updatedIncomeSource.IsBiweekly());
         income.setPaymentDateOne(updatedIncomeSource.getPaymentDateOne());
         income.setPaymentDateTwo(updatedIncomeSource.getPaymentDateTwo());
 
@@ -115,7 +115,9 @@ public class IncomeService implements IncomeInterface {
                 income.getAmount(),
                 income.getIsBiWeekly(),
                 income.getPaymentDateOne(),
-                income.getPaymentDateTwo()
+                income.getPaymentDateTwo(),
+                income.getCreatedAt(),
+                income.getUpdated_at()
         );
     }
 }

@@ -38,12 +38,12 @@ public class IncomeController {
     }
 
     @PutMapping("/update/{incomeSourceId}")
-    public ResponseEntity<IncomeResponse> updateIncomeItem(@PathVariable UUID incomeSourceId, @RequestBody IncomeDto incomeDto) {
+    public ResponseEntity<IncomeResponse> updateIncomeItem(@RequestBody IncomeDto incomeDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         User currentUser = (User) authentication.getPrincipal();
 
-        IncomeResponse IncomeItemToUpdate = incomeService.updateIncomeSource(currentUser.getId(), incomeSourceId, incomeDto);
+        IncomeResponse IncomeItemToUpdate = incomeService.updateIncomeSource(currentUser.getId(), incomeDto);
         return ResponseEntity.ok(IncomeItemToUpdate);
     }
 

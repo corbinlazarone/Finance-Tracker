@@ -9,6 +9,6 @@ import java.util.UUID;
 public interface IncomeInterface {
     List<IncomeResponse> getIncomeSources(UUID userId);
     IncomeResponse createIncomeSource(UUID userId, IncomeDto incomeDto);
-    IncomeResponse updateIncomeSource(UUID userId, UUID incomeSourceId, IncomeDto updatedIncomeSource);
+    IncomeResponse updateIncomeSource(UUID userId, IncomeDto updatedIncomeSource);
     boolean deleteIncomeSource(UUID userId, UUID incomeSourceId);
 }

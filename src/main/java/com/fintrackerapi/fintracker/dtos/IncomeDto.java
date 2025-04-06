@@ -1,15 +1,18 @@
 package com.fintrackerapi.fintracker.dtos;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 public class IncomeDto {
+    private final UUID id;
     private String name;
     private BigDecimal amount;
     private boolean isBiweekly;
     private Integer paymentDateOne;
     private Integer paymentDateTwo;
 
-    public IncomeDto(String name, BigDecimal amount, boolean isBiweekly, Integer paymentDateOne, Integer paymentDateTwo) {
+    public IncomeDto(UUID id, String name, BigDecimal amount, boolean isBiweekly, Integer paymentDateOne, Integer paymentDateTwo) {
+        this.id = id;
         this.name = name;
         this.amount = amount;
         this.isBiweekly = isBiweekly;
@@ -18,6 +21,10 @@ public class IncomeDto {
     }
 
     // getters and setters
+    public UUID getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }
@@ -26,7 +33,7 @@ public class IncomeDto {
         return amount;
     }
 
-    public boolean isBiweekly() {
+    public boolean IsBiweekly() {
         return isBiweekly;
     }
 
