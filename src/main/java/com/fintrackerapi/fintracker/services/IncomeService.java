@@ -36,7 +36,7 @@ public class IncomeService implements IncomeInterface {
     }
 
     @Override
-    public IncomeResponse createIncomeSource(IncomeDto incomeDto) {
+    public IncomeResponse createIncomeSource(UUID userId, IncomeDto incomeDto) {
         Income newIncome = new Income();
         newIncome.setName(incomeDto.getName());
         newIncome.setAmount(incomeDto.getAmount());
@@ -52,8 +52,8 @@ public class IncomeService implements IncomeInterface {
         newIncome.setPaymentDateTwo(incomeDto.getPaymentDateTwo());
 
 
-        User user = userRepo.findById(incomeDto.getUserId())
-                .orElseThrow(() -> new UserNotFoundException("User with id: " + incomeDto.getUserId() + " Not Found"));
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User with id: " + userId + " Not Found"));
 
         newIncome.setUser(user);
 
@@ -62,14 +62,14 @@ public class IncomeService implements IncomeInterface {
     }
 
     @Override
-    public IncomeResponse updateIncomeSource(UUID incomeSourceId, IncomeDto updatedIncomeSource) {
+    public IncomeResponse updateIncomeSource(UUID userId, UUID incomeSourceId, IncomeDto updatedIncomeSource) {
         // Check if the income source exists
         Income income = incomeRepo.findById(incomeSourceId)
                 .orElseThrow(() -> new RuntimeException("Income source does not exits"));
 
         // Check if income source belongs to user
         UUID incomeUserId = income.getUser().getId();
-        if (!incomeUserId.equals(updatedIncomeSource.getUserId())) {
+        if (!incomeUserId.equals(userId)) {
             throw new RuntimeException("User does not have Permission to delete this income source");
         }
 

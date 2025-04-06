@@ -29,13 +29,21 @@ public class IncomeController {
 
     @PostMapping("/new")
     public ResponseEntity<IncomeResponse> createNewIncomeItem(@RequestBody IncomeDto incomeDto) {
-        IncomeResponse newIncomeItem = incomeService.createIncomeSource(incomeDto);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        User currentUser = (User) authentication.getPrincipal();
+
+        IncomeResponse newIncomeItem = incomeService.createIncomeSource(currentUser.getId(), incomeDto);
         return ResponseEntity.status(201).body(newIncomeItem);
     }
 
     @PutMapping("/update/{incomeSourceId}")
     public ResponseEntity<IncomeResponse> updateIncomeItem(@PathVariable UUID incomeSourceId, @RequestBody IncomeDto incomeDto) {
-        IncomeResponse IncomeItemToUpdate = incomeService.updateIncomeSource(incomeSourceId, incomeDto);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        User currentUser = (User) authentication.getPrincipal();
+
+        IncomeResponse IncomeItemToUpdate = incomeService.updateIncomeSource(currentUser.getId(), incomeSourceId, incomeDto);
         return ResponseEntity.ok(IncomeItemToUpdate);
     }
 
