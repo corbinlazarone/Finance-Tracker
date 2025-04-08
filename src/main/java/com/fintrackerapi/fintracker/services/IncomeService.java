@@ -4,6 +4,8 @@ import com.fintrackerapi.fintracker.dtos.IncomeDto;
 import com.fintrackerapi.fintracker.entities.Income;
 import com.fintrackerapi.fintracker.entities.User;
 import com.fintrackerapi.fintracker.exceptions.InvalidPaymentDateException;
+import com.fintrackerapi.fintracker.exceptions.NotPermittedException;
+import com.fintrackerapi.fintracker.exceptions.ResourceNotFoundException;
 import com.fintrackerapi.fintracker.exceptions.UserNotFoundException;
 import com.fintrackerapi.fintracker.interfaces.IncomeInterface;
 import com.fintrackerapi.fintracker.repositories.IncomeRepo;
@@ -37,20 +39,19 @@ public class IncomeService implements IncomeInterface {
 
     @Override
     public IncomeResponse createIncomeSource(UUID userId, IncomeDto incomeDto) {
-        Income newIncome = new Income();
-        newIncome.setName(incomeDto.getName());
-        newIncome.setAmount(incomeDto.getAmount());
-        newIncome.setIsBiweekly(incomeDto.IsBiweekly());
-
         if (incomeDto.getPaymentDateOne() < 1
                 || incomeDto.getPaymentDateOne() > 31
                 || incomeDto.getPaymentDateTwo() < 1
                 || incomeDto.getPaymentDateTwo() > 31) {
             throw new InvalidPaymentDateException("Invalid Payment Payment Date for");
         }
+
+        Income newIncome = new Income();
+        newIncome.setName(incomeDto.getName());
+        newIncome.setAmount(incomeDto.getAmount());
+        newIncome.setIsBiweekly(incomeDto.IsBiweekly());
         newIncome.setPaymentDateOne(incomeDto.getPaymentDateOne());
         newIncome.setPaymentDateTwo(incomeDto.getPaymentDateTwo());
-
 
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with id: " + userId + " Not Found"));
@@ -65,19 +66,19 @@ public class IncomeService implements IncomeInterface {
     public IncomeResponse updateIncomeSource(UUID userId, IncomeDto updatedIncomeSource) {
         // Check if the income source exists
         Income income = incomeRepo.findById(updatedIncomeSource.getId())
-                .orElseThrow(() -> new RuntimeException("Income source does not exits"));
+                .orElseThrow(() -> new ResourceNotFoundException("Income source does not exits"));
 
         // Check if income source belongs to user
         UUID incomeUserId = income.getUser().getId();
         if (!incomeUserId.equals(userId)) {
-            throw new RuntimeException("User does not have Permission to delete this income source");
+            throw new NotPermittedException("User does not have Permission to delete this income source");
         }
 
         if (updatedIncomeSource.getPaymentDateOne() < 1
                 || updatedIncomeSource.getPaymentDateOne() > 31
                 || updatedIncomeSource.getPaymentDateTwo() < 1
                 || updatedIncomeSource.getPaymentDateTwo() > 31) {
-            throw new InvalidPaymentDateException("Invalid Payment Date");
+            throw new InvalidPaymentDateException();
         }
 
         income.setName(updatedIncomeSource.getName());
@@ -95,12 +96,12 @@ public class IncomeService implements IncomeInterface {
     public boolean deleteIncomeSource(UUID userId, UUID incomeSourceId) {
         // Check if the income source exists
         Income income = incomeRepo.findById(incomeSourceId)
-                .orElseThrow(() -> new RuntimeException("Income source does not exits"));
+                .orElseThrow(() -> new ResourceNotFoundException("Income source does not exits"));
 
         // Check if income source belongs to user
         UUID incomeUserId = income.getUser().getId();
         if (!incomeUserId.equals(userId)) {
-            throw new RuntimeException("User does not have Permission to delete this income source");
+            throw new NotPermittedException("User does not have Permission to delete this income source");
         }
 
         incomeRepo.deleteById(incomeSourceId);

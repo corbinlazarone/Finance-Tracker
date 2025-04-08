@@ -18,9 +18,11 @@ public class BudgetResponse {
     private Date createdAt;
     private Date updatedAt;
 
+    public BudgetResponse() {}
+
     public BudgetResponse(UUID id, String name, YearMonth budgetMonth,
                           BigDecimal firstBiWeeklyAmount, BigDecimal secondBiWeeklyAmount,
-                          LocalDate startDate, LocalDate endDate, boolean isActive) {
+                          LocalDate startDate, LocalDate endDate, boolean isActive, Date createdAt, Date updatedAt) {
         this.id = id;
         this.name = name;
         this.budgetMonth = budgetMonth;
@@ -29,6 +31,8 @@ public class BudgetResponse {
         this.startDate = startDate;
         this.endDate = endDate;
         this.isActive = isActive;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     // getters and setters

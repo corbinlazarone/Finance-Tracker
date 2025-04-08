@@ -9,14 +9,18 @@ public class CategoryResponse {
     private String name;
     private String description;
     private BigDecimal amountAllocated;
+    private BigDecimal amountSpent;
     private Date createdAt;
     private Date updatedAt;
 
-    public CategoryResponse(UUID id, String name, String description, BigDecimal amountAllocated) {
+    public CategoryResponse(UUID id, String name, String description, BigDecimal amountAllocated, BigDecimal amountSpent, Date createdAt, Date updatedAt) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.amountAllocated = amountAllocated;
+        this.amountSpent = amountSpent;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     // getters and setters
@@ -50,6 +54,14 @@ public class CategoryResponse {
 
     public void setAmountAllocated(BigDecimal amountAllocated) {
         this.amountAllocated = amountAllocated;
+    }
+
+    public BigDecimal getAmountSpent() {
+        return amountSpent;
+    }
+
+    public void setAmountSpent(BigDecimal amountSpent) {
+        this.amountSpent = amountSpent;
     }
 
     public Date getCreatedAt() {

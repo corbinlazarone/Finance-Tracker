@@ -30,6 +30,9 @@ public class Category {
     @Column(precision = 19, scale = 4)
     private BigDecimal amountAllocated;
 
+    @Column(precision = 19, scale = 4)
+    private BigDecimal amountSpent;
+
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
     private Date createdAt;
@@ -78,6 +81,14 @@ public class Category {
 
     public void setAmountAllocated(BigDecimal amountAllocated) {
         this.amountAllocated = amountAllocated;
+    }
+
+    public BigDecimal getAmountSpent() {
+        return amountSpent;
+    }
+
+    public void setAmountSpent(BigDecimal amountSpent) {
+        this.amountSpent = amountSpent;
     }
 
     public Date getCreatedAt() {

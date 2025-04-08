@@ -15,12 +15,14 @@ public class TransactionResponse {
     private Date createdAt;
     private Date updatedAt;
 
-    public TransactionResponse(UUID id, String name, BigDecimal amount, String memo, TransactionType type) {
+    public TransactionResponse(UUID id, String name, BigDecimal amount, String memo, TransactionType type, Date createdAt, Date updatedAt) {
         this.id = id;
         this.name = name;
         this.amount = amount;
         this.memo = memo;
         this.type = type;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     // getters and setters

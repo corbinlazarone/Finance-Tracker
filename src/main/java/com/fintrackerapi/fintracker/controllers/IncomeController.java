@@ -27,7 +27,7 @@ public class IncomeController {
         return ResponseEntity.ok(incomeSources);
     }
 
-    @PostMapping("/new")
+    @PostMapping("/create")
     public ResponseEntity<IncomeResponse> createNewIncomeItem(@RequestBody IncomeDto incomeDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -37,7 +37,7 @@ public class IncomeController {
         return ResponseEntity.status(201).body(newIncomeItem);
     }
 
-    @PutMapping("/update/{incomeSourceId}")
+    @PutMapping("/update")
     public ResponseEntity<IncomeResponse> updateIncomeItem(@RequestBody IncomeDto incomeDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 

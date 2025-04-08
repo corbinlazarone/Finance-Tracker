@@ -83,13 +83,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         if (exception instanceof UserNotFoundException) {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(400), exception.getMessage());
-            descripton = "User not Found";
+            descripton = exception.getMessage();
             errorDetail.setProperty("description", descripton);
         }
 
         if (exception instanceof  InvalidPaymentDateException) {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(400), exception.getMessage());
-            descripton = "Invalid Payment Date. Must be greater than 1 and less than 31.";
+            descripton = exception.getMessage();
+            errorDetail.setProperty("description", descripton);
+        }
+
+        if (exception instanceof  NotPermittedException) {
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(400), exception.getMessage());
+            descripton = exception.getMessage();
+            errorDetail.setProperty("description", descripton);
+        }
+
+        if (exception instanceof ResourceNotFoundException) {
+            errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(400), exception.getMessage());
+            descripton = exception.getMessage();
             errorDetail.setProperty("description", descripton);
         }
 
