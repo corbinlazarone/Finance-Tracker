@@ -66,12 +66,12 @@ public class IncomeService implements IncomeInterface {
     public IncomeResponse updateIncomeSource(UUID userId, IncomeDto updatedIncomeSource) {
         // Check if the income source exists
         Income income = incomeRepo.findById(updatedIncomeSource.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Income source does not exits"));
+                .orElseThrow(() -> new ResourceNotFoundException("Income source does not exists"));
 
         // Check if income source belongs to user
         UUID incomeUserId = income.getUser().getId();
         if (!incomeUserId.equals(userId)) {
-            throw new NotPermittedException("User does not have Permission to delete this income source");
+            throw new NotPermittedException("You don't have permission to update this income source!");
         }
 
         if (updatedIncomeSource.getPaymentDateOne() < 1

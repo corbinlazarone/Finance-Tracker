@@ -18,8 +18,8 @@ public interface BudgetInterface {
     Set<CategoryResponse> getCategories(UUID userId);
     Set<TransactionResponse> getAllTransactions(UUID userId);
     BudgetResponse updateBudget(UUID userId, BudgetDto budgetDto);
-    CategoryResponse updateCategories(UUID userId, CategoryDto categoryDto);
-    TransactionResponse updateTransaction(UUID userId, TransactionDto transactionDto);
+    CategoryResponse updateCategories(UUID userId, UUID categoryId, CategoryDto categoryDto);
+    TransactionResponse updateTransaction(UUID userId, UUID transactionId, TransactionDto transactionDto);
     boolean deleteCategory(UUID userId, UUID categoryId);
     boolean deleteTransaction(UUID userId, UUID transactionId);
     boolean deleteBudget(UUID userId, UUID budgetId);

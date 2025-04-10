@@ -65,9 +65,7 @@ public class BudgetService implements BudgetInterface {
     @Override
     @Transactional
     public CategoryResponse createNewCategory(UUID userId, CategoryDto categoryDto) {
-        // find user's budget
-        Budget budget = budgetRepo.findByUserId(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Couldn't find user's budget"));
+        Budget budget = checkBudget(userId);
 
         // Check if a category with the same name already exists in this budget
         String categoryName = categoryDto.getName().trim();
@@ -93,20 +91,18 @@ public class BudgetService implements BudgetInterface {
     @Override
     @Transactional
     public TransactionResponse createNewTransaction(UUID userId, UUID categoryId, TransactionDto transactionDto) {
+        Budget budget = checkBudget(userId);
+
         Transaction transaction = new Transaction();
         transaction.setName(transactionDto.getName());
         transaction.setAmount(transactionDto.getAmount());
         transaction.setMemo(transactionDto.getMemo());
         transaction.setType(transactionDto.getType());
 
-        // find user's budget
-        Budget budget = budgetRepo.findByUserId(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Couldn't find user's budget"));
-
         // set budget reference
         transaction.setBudget(budget);
 
-        // find category in budget
+        // find category and check if it belongs to the user's budget
         Category category = categoryRepo.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Could not find Category"));
 
@@ -137,9 +133,7 @@ public class BudgetService implements BudgetInterface {
     @Override
     @Transactional
     public Set<CategoryResponse> getCategories(UUID userId) {
-        // find user's budget
-        Budget budget = budgetRepo.findByUserId(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Couldn't find user's budget"));
+        Budget budget = checkBudget(userId);
 
         Set<Category> categories = budget.getCategories();
         Set<CategoryResponse> categoryResponses = new HashSet<>();
@@ -155,9 +149,7 @@ public class BudgetService implements BudgetInterface {
     @Override
     @Transactional
     public Set<TransactionResponse> getAllTransactions(UUID userId) {
-        // find user's budget
-        Budget budget = budgetRepo.findByUserId(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Couldn't find user's budget"));
+        Budget budget = checkBudget(userId);
 
         Set<Transaction> transactions = budget.getTransactions();
         Set<TransactionResponse> transactionResponses = new HashSet<>();
@@ -172,17 +164,40 @@ public class BudgetService implements BudgetInterface {
 
     @Override
     public BudgetResponse updateBudget(UUID userId, BudgetDto budgetDto) {
-        // Check if budget exists
+        Budget budget = checkBudget(userId);
+
+        budget.setName(budgetDto.getName());
+        budget.setBudgetMonth(budgetDto.getBudgetMonth());
+        budget.setFirstBiWeeklyAmount(budgetDto.getFirstBiWeeklyAmount());
+        budget.setSecondBiWeeklyAmount(budgetDto.getSecondBiWeeklyAmount());
+        budget.setStartDate(budgetDto.getStartDate());
+        budget.setEndDate(budgetDto.getEndDate());
+        budget.setActive(budgetDto.isActive());
+
+        return convertToBudgetResponse(budget);
+    }
+
+    @Override
+    public CategoryResponse updateCategories(UUID userId, UUID categoryId, CategoryDto categoryDto) {
+        Budget budget = checkBudget(userId);
+
+        // find category and check if it belongs to the user's budget
+        Category category = categoryRepo.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find Category"));
+
+        UUID budgetId = category.getBudget().getId();
+        if (!category.getBudget().getId().equals(budgetId)) {
+            throw new NotPermittedException("Category does not belong to user's budget");
+        }
+
+        // TODO: update category (may need to update the set that is attached to the budget
+        //  or just update the category in the db)
+
         return null;
     }
 
     @Override
-    public CategoryResponse updateCategories(UUID userId, CategoryDto categoryDto) {
-        return null;
-    }
-
-    @Override
-    public TransactionResponse updateTransaction(UUID userId, TransactionDto transactionDto) {
+    public TransactionResponse updateTransaction(UUID userId, UUID transactionId, TransactionDto transactionDto) {
         return null;
     }
 
@@ -199,6 +214,19 @@ public class BudgetService implements BudgetInterface {
     @Override
     public boolean deleteBudget(UUID userId, UUID budgetId) {
         return true;
+    }
+
+    // Check if budget exits and if budget belongs to user
+    private Budget checkBudget(UUID userId) {
+        Budget budget = budgetRepo.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Budget does not exists"));
+
+        UUID budgetUserId = budget.getUser().getId();
+        if (!budgetUserId.equals(userId)) {
+            throw new NotPermittedException("You don't have permission to update this budget!");
+        }
+
+        return budget;
     }
 
     private BudgetResponse convertToBudgetResponse(Budget budget) {
