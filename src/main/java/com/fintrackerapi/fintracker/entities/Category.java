@@ -5,6 +5,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.UUID;
 
@@ -33,13 +34,16 @@ public class Category {
     @Column(precision = 19, scale = 4)
     private BigDecimal amountSpent;
 
+    @Column(nullable = false)
+    private LocalDate dueDate;
+
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
     private Date createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
-    private Date updated_at;
+    private Date updatedAt;
 
     // getters and setters
 
@@ -91,6 +95,14 @@ public class Category {
         this.amountSpent = amountSpent;
     }
 
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
+    }
+
     public Date getCreatedAt() {
         return createdAt;
     }
@@ -99,11 +111,11 @@ public class Category {
         this.createdAt = createdAt;
     }
 
-    public Date getUpdated_at() {
-        return updated_at;
+    public Date getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setUpdated_at(Date updated_at) {
-        this.updated_at = updated_at;
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

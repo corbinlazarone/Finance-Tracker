@@ -6,4 +6,5 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.UUID;
 
 public interface CategoryRepo extends CrudRepository<Category, UUID> {
+    boolean existsByBudgetIdAndNameIgnoreCase(UUID budgetId, String name);
 }

@@ -1,26 +1,22 @@
 package com.fintrackerapi.fintracker.dtos;
 
 import java.math.BigDecimal;
-import java.util.UUID;
+import java.time.LocalDate;
 
 public class CategoryDto {
-    private final UUID id;
     private String name;
     private String description;
     private BigDecimal amountAllocated;
+    private LocalDate dueDate;
 
-    public CategoryDto(UUID id, String name, String description, BigDecimal amountAllocated) {
-        this.id = id;
+    public CategoryDto(String name, String description, BigDecimal amountAllocated, LocalDate dueDate) {
         this.name = name;
         this.description = description;
         this.amountAllocated = amountAllocated;
+        this.dueDate = dueDate;
     }
 
     // getters and setters
-    public UUID getId() {
-        return id;
-    }
-
     public String getName() {
         return name;
     }
@@ -43,5 +39,13 @@ public class CategoryDto {
 
     public void setAmountAllocated(BigDecimal amountAllocated) {
         this.amountAllocated = amountAllocated;
+    }
+
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
     }
 }

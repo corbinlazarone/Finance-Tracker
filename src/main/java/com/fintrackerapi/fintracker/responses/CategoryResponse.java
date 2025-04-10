@@ -1,6 +1,7 @@
 package com.fintrackerapi.fintracker.responses;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.UUID;
 
@@ -10,15 +11,17 @@ public class CategoryResponse {
     private String description;
     private BigDecimal amountAllocated;
     private BigDecimal amountSpent;
+    private LocalDate dueDate;
     private Date createdAt;
     private Date updatedAt;
 
-    public CategoryResponse(UUID id, String name, String description, BigDecimal amountAllocated, BigDecimal amountSpent, Date createdAt, Date updatedAt) {
+    public CategoryResponse(UUID id, String name, String description, BigDecimal amountAllocated, BigDecimal amountSpent, LocalDate dueDate, Date createdAt, Date updatedAt) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.amountAllocated = amountAllocated;
         this.amountSpent = amountSpent;
+        this.dueDate = dueDate;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -62,6 +65,14 @@ public class CategoryResponse {
 
     public void setAmountSpent(BigDecimal amountSpent) {
         this.amountSpent = amountSpent;
+    }
+
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
     }
 
     public Date getCreatedAt() {

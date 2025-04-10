@@ -38,14 +38,13 @@ public class BudgetController {
     @PostMapping("/category/create")
     public ResponseEntity<CategoryResponse> createNewCategory(@RequestBody CategoryDto categoryDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         User currentUser = (User) authentication.getPrincipal();
 
         CategoryResponse newCategory = budgetService.createNewCategory(currentUser.getId(), categoryDto);
         return ResponseEntity.status(201).body(newCategory);
     }
 
-    @PostMapping("/category/{categoryId}/create")
+    @PostMapping("/category/{categoryId}/transaction/create")
     public ResponseEntity<TransactionResponse> createNewTransaction(@PathVariable UUID categoryId,
                                                                     @RequestBody TransactionDto transactionDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

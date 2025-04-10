@@ -13,12 +13,15 @@ import com.fintrackerapi.fintracker.exceptions.UserNotFoundException;
 import com.fintrackerapi.fintracker.interfaces.BudgetInterface;
 import com.fintrackerapi.fintracker.repositories.BudgetRepo;
 import com.fintrackerapi.fintracker.repositories.CategoryRepo;
+import com.fintrackerapi.fintracker.repositories.TransactionRepo;
 import com.fintrackerapi.fintracker.repositories.UserRepo;
 import com.fintrackerapi.fintracker.responses.BudgetResponse;
 import com.fintrackerapi.fintracker.responses.CategoryResponse;
 import com.fintrackerapi.fintracker.responses.TransactionResponse;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -29,11 +32,13 @@ public class BudgetService implements BudgetInterface {
     private final BudgetRepo budgetRepo;
     private final UserRepo userRepo;
     private final CategoryRepo categoryRepo;
+    private final TransactionRepo transactionRepo;
 
-    public BudgetService(BudgetRepo budgetRepo, UserRepo userRepo, CategoryRepo categoryRepo) {
+    public BudgetService(BudgetRepo budgetRepo, UserRepo userRepo, CategoryRepo categoryRepo, TransactionRepo transactionRepo) {
         this.budgetRepo = budgetRepo;
         this.userRepo = userRepo;
         this.categoryRepo = categoryRepo;
+        this.transactionRepo = transactionRepo;
     }
 
     @Override
@@ -58,34 +63,35 @@ public class BudgetService implements BudgetInterface {
     }
 
     @Override
+    @Transactional
     public CategoryResponse createNewCategory(UUID userId, CategoryDto categoryDto) {
-        Category newCategory = new Category();
-        newCategory.setName(categoryDto.getName());
-        newCategory.setDescription(categoryDto.getDescription());
-        newCategory.setAmountAllocated(categoryDto.getAmountAllocated());
-
         // find user's budget
         Budget budget = budgetRepo.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Couldn't find user's budget"));
 
+        // Check if a category with the same name already exists in this budget
+        String categoryName = categoryDto.getName().trim();
+        if (categoryRepo.existsByBudgetIdAndNameIgnoreCase(budget.getId(), categoryName)) {
+            throw new ResourceNotFoundException("A category with name '" + categoryName + "' already exists in this budget");
+        }
+
+        Category newCategory = new Category();
+        newCategory.setName(categoryDto.getName());
+        newCategory.setDescription(categoryDto.getDescription());
+        newCategory.setAmountAllocated(categoryDto.getAmountAllocated());
+        newCategory.setAmountSpent(BigDecimal.ZERO);
+        newCategory.setDueDate(categoryDto.getDueDate());
+
         // set budget reference
         newCategory.setBudget(budget);
 
-        // Get the existing categories or create a new set if null
-        Set<Category> categories = budget.getCategories();
-        if (categories == null) {
-            categories = new HashSet<>();
-            budget.setCategories(categories);
-        }
-        categories.add(newCategory);
+        Category savedCategory = categoryRepo.save(newCategory);
 
-        // save budget will also cascade to categories
-        budgetRepo.save(budget);
-
-        return convertToCategoryResponse(newCategory);
+        return convertToCategoryResponse(savedCategory);
     }
 
     @Override
+    @Transactional
     public TransactionResponse createNewTransaction(UUID userId, UUID categoryId, TransactionDto transactionDto) {
         Transaction transaction = new Transaction();
         transaction.setName(transactionDto.getName());
@@ -115,18 +121,9 @@ public class BudgetService implements BudgetInterface {
         category.setAmountSpent(category.getAmountSpent().add(transaction.getAmount()));
         categoryRepo.save(category);
 
-        // Get existing transactions or create a new set if null
-        Set<Transaction> transactions = budget.getTransactions();
-        if (transactions == null) {
-            transactions = new HashSet<>();
-            budget.setTransactions(transactions);
-        }
-        transactions.add(transaction);
+        Transaction savedTransaction = transactionRepo.save(transaction);
 
-        // Save budget will also cascade to transactions
-        budgetRepo.save(budget);
-
-        return convertToTransactionResponse(transaction);
+        return convertToTransactionResponse(savedTransaction);
     }
 
     @Override
@@ -138,6 +135,7 @@ public class BudgetService implements BudgetInterface {
     }
 
     @Override
+    @Transactional
     public Set<CategoryResponse> getCategories(UUID userId) {
         // find user's budget
         Budget budget = budgetRepo.findByUserId(userId)
@@ -155,6 +153,7 @@ public class BudgetService implements BudgetInterface {
     }
 
     @Override
+    @Transactional
     public Set<TransactionResponse> getAllTransactions(UUID userId) {
         // find user's budget
         Budget budget = budgetRepo.findByUserId(userId)
@@ -173,6 +172,7 @@ public class BudgetService implements BudgetInterface {
 
     @Override
     public BudgetResponse updateBudget(UUID userId, BudgetDto budgetDto) {
+        // Check if budget exists
         return null;
     }
 
@@ -223,8 +223,9 @@ public class BudgetService implements BudgetInterface {
                 category.getDescription(),
                 category.getAmountAllocated(),
                 category.getAmountSpent(),
+                category.getDueDate(),
                 category.getCreatedAt(),
-                category.getUpdated_at()
+                category.getUpdatedAt()
         );
     }
 
@@ -236,7 +237,7 @@ public class BudgetService implements BudgetInterface {
                 transaction.getMemo(),
                 transaction.getType(),
                 transaction.getCreatedAt(),
-                transaction.getUpdated_at()
+                transaction.getUpdatedAt()
         );
     }
 }

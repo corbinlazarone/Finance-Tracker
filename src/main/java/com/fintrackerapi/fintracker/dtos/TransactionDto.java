@@ -6,14 +6,12 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 public class TransactionDto {
-    private final UUID id;
     private String name;
     private BigDecimal amount;
     private String memo;
     private TransactionType type;
 
-    public TransactionDto(UUID id, String name, BigDecimal amount, String memo, TransactionType type) {
-        this.id = id;
+    public TransactionDto(String name, BigDecimal amount, String memo, TransactionType type) {
         this.name = name;
         this.amount = amount;
         this.memo = memo;
@@ -21,10 +19,6 @@ public class TransactionDto {
     }
 
     // getters and setters
-    public UUID getId() {
-        return id;
-    }
-
     public String getName() {
         return name;
     }

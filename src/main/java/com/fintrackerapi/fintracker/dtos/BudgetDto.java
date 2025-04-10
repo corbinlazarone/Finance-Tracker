@@ -3,10 +3,8 @@ package com.fintrackerapi.fintracker.dtos;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.UUID;
 
 public class BudgetDto {
-    private final UUID id;
     private String name;
     private YearMonth budgetMonth;
     private BigDecimal firstBiWeeklyAmount;
@@ -15,10 +13,9 @@ public class BudgetDto {
     private LocalDate endDate;
     private boolean isActive;
 
-    public BudgetDto(UUID id, String name, YearMonth budgetMonth,
+    public BudgetDto(String name, YearMonth budgetMonth,
                      BigDecimal firstBiWeeklyAmount, BigDecimal secondBiWeeklyAmount,
                      LocalDate startDate, LocalDate endDate, boolean isActive) {
-        this.id = id;
         this.name = name;
         this.budgetMonth = budgetMonth;
         this.firstBiWeeklyAmount = firstBiWeeklyAmount;
@@ -29,10 +26,6 @@ public class BudgetDto {
     }
 
     // getters and setters
-    public UUID getId() {
-        return id;
-    }
-
     public String getName() {
         return name;
     }
