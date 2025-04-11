@@ -3,6 +3,8 @@ package com.fintrackerapi.fintracker.services;
 import com.fintrackerapi.fintracker.dtos.LoginUserDto;
 import com.fintrackerapi.fintracker.dtos.RegisterUserDto;
 import com.fintrackerapi.fintracker.entities.User;
+import com.fintrackerapi.fintracker.exceptions.NotPermittedException;
+import com.fintrackerapi.fintracker.exceptions.ResourceNotFoundException;
 import com.fintrackerapi.fintracker.interfaces.AuthenticationInterface;
 import com.fintrackerapi.fintracker.repositories.UserRepo;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,6 +12,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class AuthenticationService implements AuthenticationInterface {
@@ -60,6 +64,13 @@ public class AuthenticationService implements AuthenticationInterface {
         user.setFullName(input.getFullName());
         user.setEmail(input.getEmail());
         user.setPassword(passwordEncoder.encode(input.getPassword()));
+
+        // Check if user already exists
+        Optional<User> userOptional = userRepo.findByEmail(input.getEmail());
+        if (userOptional.isEmpty()) {
+            throw new NotPermittedException("This email is already in use. Please Login");
+        }
+
         return userRepo.save(user);
     }
 
@@ -76,7 +87,8 @@ public class AuthenticationService implements AuthenticationInterface {
                 )
         );
 
-        return userRepo.findByEmail(input.getEmail()).orElseThrow();
+        return userRepo.findByEmail(input.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find user"));
     }
 
     private boolean isValidEmail(String email) {

@@ -174,12 +174,14 @@ public class BudgetService implements BudgetInterface {
         budget.setEndDate(budgetDto.getEndDate());
         budget.setActive(budgetDto.isActive());
 
-        return convertToBudgetResponse(budget);
+        Budget savedBudget = budgetRepo.save(budget);
+
+        return convertToBudgetResponse(savedBudget);
     }
 
     @Override
     public CategoryResponse updateCategories(UUID userId, UUID categoryId, CategoryDto categoryDto) {
-        Budget budget = checkBudget(userId);
+        checkBudget(userId);
 
         // find category and check if it belongs to the user's budget
         Category category = categoryRepo.findById(categoryId)
@@ -190,10 +192,15 @@ public class BudgetService implements BudgetInterface {
             throw new NotPermittedException("Category does not belong to user's budget");
         }
 
-        // TODO: update category (may need to update the set that is attached to the budget
-        //  or just update the category in the db)
+        // update and save category
+        category.setName(categoryDto.getName());
+        category.setDescription(categoryDto.getDescription());
+        category.setAmountAllocated(categoryDto.getAmountAllocated());
+        category.setDueDate(categoryDto.getDueDate());
 
-        return null;
+        Category savedCategory = categoryRepo.save(category);
+
+        return convertToCategoryResponse(savedCategory);
     }
 
     @Override
