@@ -1,7 +1,6 @@
 package com.fintrackerapi.fintracker.controllers;
 
 import com.fintrackerapi.fintracker.entities.User;
-import com.fintrackerapi.fintracker.interfaces.UserInterface;
 import com.fintrackerapi.fintracker.responses.UserResponse;
 import com.fintrackerapi.fintracker.services.UserService;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +30,6 @@ public class UserController{
                 currentUser.getId(),
                 currentUser.getFullName(),
                 currentUser.getEmail(),
-                currentUser.getUsername(),
                 currentUser.getCreatedAt()
         );
         return ResponseEntity.ok(userResponse);

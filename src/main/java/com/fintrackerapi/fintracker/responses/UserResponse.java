@@ -8,13 +8,11 @@ public class UserResponse {
     private String fullName;
     private String email;
     private Date createdAt;
-    private String username;
 
-    public UserResponse(UUID id, String fullName, String email, String username, Date createdAt) {
+    public UserResponse(UUID id, String fullName, String email, Date createdAt) {
         this.id = id;
         this.fullName = fullName;
         this.email = email;
-        this.username = username;
         this.createdAt = createdAt;
     }
 
@@ -48,13 +46,5 @@ public class UserResponse {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 }

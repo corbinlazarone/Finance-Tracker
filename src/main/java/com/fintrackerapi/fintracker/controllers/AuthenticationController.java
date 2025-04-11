@@ -4,6 +4,7 @@ import com.fintrackerapi.fintracker.dtos.LoginUserDto;
 import com.fintrackerapi.fintracker.dtos.RegisterUserDto;
 import com.fintrackerapi.fintracker.entities.User;
 import com.fintrackerapi.fintracker.responses.LoginResponse;
+import com.fintrackerapi.fintracker.responses.UserResponse;
 import com.fintrackerapi.fintracker.services.AuthenticationService;
 import com.fintrackerapi.fintracker.services.JwtService;
 import jakarta.validation.Valid;
@@ -23,10 +24,10 @@ public class AuthenticationController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<User> register(@Valid @RequestBody RegisterUserDto registerUserDto) {
-        User registerdUser = authenticationService.signUp(registerUserDto);
+    public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterUserDto registerUserDto) {
+        UserResponse registeredUser = authenticationService.signUp(registerUserDto);
 
-        return ResponseEntity.ok(registerdUser);
+        return ResponseEntity.ok(registeredUser);
     }
 
     @PostMapping("/login")

@@ -33,7 +33,6 @@ public class UserService implements UserInterface {
                 user.getId(),
                 user.getFullName(),
                 user.getEmail(),
-                user.getUsername(),
                 user.getCreatedAt()
         );
     }

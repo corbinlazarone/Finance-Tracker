@@ -3,17 +3,15 @@ package com.fintrackerapi.fintracker.services;
 import com.fintrackerapi.fintracker.dtos.LoginUserDto;
 import com.fintrackerapi.fintracker.dtos.RegisterUserDto;
 import com.fintrackerapi.fintracker.entities.User;
-import com.fintrackerapi.fintracker.exceptions.NotPermittedException;
 import com.fintrackerapi.fintracker.exceptions.ResourceNotFoundException;
 import com.fintrackerapi.fintracker.interfaces.AuthenticationInterface;
 import com.fintrackerapi.fintracker.repositories.UserRepo;
+import com.fintrackerapi.fintracker.responses.UserResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class AuthenticationService implements AuthenticationInterface {
@@ -34,7 +32,7 @@ public class AuthenticationService implements AuthenticationInterface {
     }
 
     @Override
-    public User signUp(RegisterUserDto input) {
+    public UserResponse signUp(RegisterUserDto input) {
         // Basic null checks
         if (input.getEmail() == null || input.getPassword() == null || input.getFullName() == null) {
             throw new BadCredentialsException("All fields are required");
@@ -57,7 +55,10 @@ public class AuthenticationService implements AuthenticationInterface {
 
         // Validate password strength
         if (!isStrongPassword(input.getPassword())) {
-            throw new BadCredentialsException("Password must be at least 8 characters and include both letters and numbers");
+            throw new BadCredentialsException(
+                    "Password must be at least 8 characters and include both letters, " +
+                            "numbers and one special character"
+            );
         }
 
         User user = new User();
@@ -65,13 +66,9 @@ public class AuthenticationService implements AuthenticationInterface {
         user.setEmail(input.getEmail());
         user.setPassword(passwordEncoder.encode(input.getPassword()));
 
-        // Check if user already exists
-        Optional<User> userOptional = userRepo.findByEmail(input.getEmail());
-        if (userOptional.isEmpty()) {
-            throw new NotPermittedException("This email is already in use. Please Login");
-        }
+        User savedUser = userRepo.save(user);
 
-        return userRepo.save(user);
+        return convertToUserResponse(savedUser);
     }
 
     @Override
@@ -97,8 +94,17 @@ public class AuthenticationService implements AuthenticationInterface {
     }
 
     private boolean isStrongPassword(String password) {
-        // Minimum 8 chars, at least one letter and one number
-        String regex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";
+        // Minimum 8 chars, at least one letter, one number, and one special character
+        String regex = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*?&_\\-#])[A-Za-z\\d@$!%*?&_\\-#]{8,}$";
         return password != null && password.matches(regex);
+    }
+
+    private UserResponse convertToUserResponse(User user) {
+        return new UserResponse(
+                user.getId(),
+                user.getFullName(),
+                user.getEmail(),
+                user.getCreatedAt()
+        );
     }
 }
