@@ -4,6 +4,7 @@ package com.fintrackerapi.fintracker.ServiceTests;
 import com.fintrackerapi.fintracker.dtos.LoginUserDto;
 import com.fintrackerapi.fintracker.dtos.RegisterUserDto;
 import com.fintrackerapi.fintracker.entities.User;
+import com.fintrackerapi.fintracker.exceptions.ResourceNotFoundException;
 import com.fintrackerapi.fintracker.repositories.UserRepo;
 import com.fintrackerapi.fintracker.responses.UserResponse;
 import com.fintrackerapi.fintracker.services.AuthenticationService;
@@ -15,9 +16,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
@@ -33,7 +34,6 @@ import static org.mockito.Mockito.*;
  * - Test successful user login
  * - Test user login with invalid input
  * - Test user login with non-existent user
- * - Test exception handling
  */
 
 @ExtendWith(MockitoExtension.class)
@@ -52,9 +52,9 @@ public class AuthenticationServiceTest {
     private AuthenticationService authenticationService;
 
     private static final UUID USERID = UUID.randomUUID();
-    private static final String TEST_EMAIL = "test@gmai.com";
+    private static final String TEST_EMAIL = "test@example.com";
     private static final String TEST_FULL_NAME = "Test1 Test";
-    private static final String TEST_PASSWORD = "Demons042204!";
+    private static final String TEST_PASSWORD = "TestPassword123!";
     private LoginUserDto loginUserDto;
     private RegisterUserDto registerUserDto;
 
@@ -232,5 +232,69 @@ public class AuthenticationServiceTest {
 
         // Verify that the user was never saved
         verify(userRepo, times(0)).save(any(User.class));
+    }
+
+    @Test
+    public void userLoginSuccess() {
+
+        // Mock user
+        UUID mockUserId = UUID.randomUUID();
+        Date mockUserCreatedAt = new Date();
+        User mockUser = new User();
+        mockUser.setId(mockUserId);
+        mockUser.setFullName("Test1 Test");
+        mockUser.setEmail(loginUserDto.getEmail());
+        mockUser.setCreatedAt(mockUserCreatedAt);
+
+        // Mock findByEmail method to return mock user
+        when(userRepo.findByEmail(loginUserDto.getEmail())).thenReturn(Optional.of(mockUser));
+
+        // Call service method to authenticate user
+        User foundUser = authenticationService.authenticate(loginUserDto);
+
+        // Assert that the result is not null
+        assertNotNull(foundUser);
+
+        // Assert that the result details are correct
+        assertEquals(foundUser.getId(), mockUser.getId());
+        assertEquals(foundUser.getFullName(), mockUser.getFullName());
+        assertEquals(foundUser.getEmail(), mockUser.getEmail());
+        assertEquals(foundUser.getCreatedAt(), mockUser.getCreatedAt());
+
+        // Verify that the user repo findByEmail was only called once
+        verify(userRepo, times(1)).findByEmail(loginUserDto.getEmail());
+    }
+
+    @Test
+    public void userLoginWithInvalidInput() {
+
+        // Mock user login dto with invalid inputs
+        LoginUserDto loginUserDtoInvalid = new LoginUserDto(
+            null,
+            null
+        );
+
+        // Call the authenticate service method expecting an exception to be thrown
+        BadCredentialsException exception = assertThrows(BadCredentialsException.class, () -> {
+           authenticationService.authenticate(loginUserDtoInvalid);
+        });
+
+        // Assert that exception message matches
+        assertEquals("Invalid email or password", exception.getMessage());
+    }
+
+    @Test
+    public void userLoginWithNonExistentUser() {
+
+        // Mock findByEmail to return empty user object
+        when(userRepo.findByEmail(loginUserDto.getEmail())).thenReturn(Optional.empty());
+
+        // Call the authenticate service method expecting an exception to be thrown
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+           authenticationService.authenticate(loginUserDto);
+        });
+
+        // Assert that the exception message matches
+        assertEquals("Could not find user", exception.getMessage());
     }
 }

@@ -1,6 +1,7 @@
 package com.fintrackerapi.fintracker.ServiceTests;
 
 import com.fintrackerapi.fintracker.entities.User;
+import com.fintrackerapi.fintracker.exceptions.ResourceNotFoundException;
 import com.fintrackerapi.fintracker.repositories.UserRepo;
 import com.fintrackerapi.fintracker.responses.UserResponse;
 import com.fintrackerapi.fintracker.services.UserService;
@@ -19,6 +20,8 @@ import static org.mockito.Mockito.*;
  * TEST CASES
  *  - Test get all users for non-empty users
  *  - Test get all users for empty users
+ *  - Test findByEmail success
+ *  - Test findByEmail failure
  */
 
 @ExtendWith(MockitoExtension.class)
@@ -88,5 +91,54 @@ public class UserServiceTest {
 
         // Verify that user repo findAll was only called once
         verify(userRepo, times(1)).findAll();
+    }
+
+    @Test
+    public void getFindByEmailSuccess() {
+
+        // Mock User object
+        UUID mockUserId = UUID.randomUUID();
+        Date mockUserCreatedAt = new Date();
+        User mockUser = new User();
+        mockUser.setId(mockUserId);
+        mockUser.setFullName("Test test");
+        mockUser.setEmail("test@example.com");
+        mockUser.setCreatedAt(mockUserCreatedAt);
+
+        // Mock findByEmail to return optional of mock user object
+        when(userRepo.findByEmail("test@example.com")).thenReturn(Optional.of(mockUser));
+
+        // Call the findByEmail service method
+        UserResponse foundUser = userService.findByEmail("test@example.com");
+
+        // Assert that the result is not null
+        assertNotNull(foundUser);
+
+        // Assert that user response details are correct
+        assertEquals(foundUser.getId(), mockUser.getId());
+        assertEquals(foundUser.getFullName(), mockUser.getFullName());
+        assertEquals(foundUser.getEmail(), mockUser.getEmail());
+        assertEquals(foundUser.getCreatedAt(), mockUser.getCreatedAt());
+
+        // Verify that the findByEmail method was only called once
+        verify(userRepo, times(1)).findByEmail("test@example.com");
+    }
+
+    @Test
+     public void getFindByEmailFailure() {
+
+        // Mock findByEmail to return optional of user object
+        when(userRepo.findByEmail("test@example.com")).thenReturn(Optional.empty());
+
+        // Call the findByEmail service method expecting an exception to be thrown
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+           userService.findByEmail("test@example.com");
+        });
+
+        // Assert that the exception message matches
+        assertEquals("No user found", exception.getMessage());
+
+        // Verify that the findByEmail method was only called once
+        verify(userRepo, times(1)).findByEmail("test@example.com");
     }
 }
