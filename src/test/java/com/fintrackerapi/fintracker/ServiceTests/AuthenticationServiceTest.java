@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
@@ -50,6 +51,7 @@ public class AuthenticationServiceTest {
     @InjectMocks
     private AuthenticationService authenticationService;
 
+    private static final UUID USERID = UUID.randomUUID();
     private static final String TEST_EMAIL = "test@gmai.com";
     private static final String TEST_FULL_NAME = "Test1 Test";
     private static final String TEST_PASSWORD = "Demons042204!";
@@ -75,7 +77,7 @@ public class AuthenticationServiceTest {
     public void userRegistrationSuccess() {
 
         User savedUser = new User();
-        savedUser.setId(UUID.randomUUID());
+        savedUser.setId(USERID);
         savedUser.setEmail(registerUserDto.getEmail());
         savedUser.setFullName(registerUserDto.getFullName());
         savedUser.setCreatedAt(new Date());
@@ -105,5 +107,33 @@ public class AuthenticationServiceTest {
 
         // Verify that the was only saved once
         verify(userRepo, times(1)).save(any(User.class));
+    }
+
+    @Test
+    public void userRegistrationWithExistingEmail() {
+
+        User existingUser = new User();
+        existingUser.setId(USERID);
+        existingUser.setEmail(registerUserDto.getEmail());
+        existingUser.setFullName(registerUserDto.getFullName());
+        existingUser.setPassword("encodedPassword");
+
+        // Mock the findByEmail method to return a User object
+        // simulating that a user already exist with the provided email
+        when(userRepo.findByEmail(registerUserDto.getEmail())).thenReturn(Optional.of(existingUser));
+
+        // Call the register method expecting an exception to be thrown
+        BadCredentialsException exception = assertThrows(BadCredentialsException.class, () -> {
+            authenticationService.signUp(registerUserDto);
+        });
+
+        // Assert that the exception message matches
+        assertEquals("Email already registered", exception.getMessage());
+
+        // Verify that the user repo findByEmail method was called
+        verify(userRepo, times(1)).findByEmail(registerUserDto.getEmail());
+
+        // Verify that the user was never saved
+        verify(userRepo, never()).save(any(User.class));
     }
 }
