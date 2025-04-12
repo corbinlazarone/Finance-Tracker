@@ -7,7 +7,6 @@ import com.fintrackerapi.fintracker.responses.LoginResponse;
 import com.fintrackerapi.fintracker.responses.UserResponse;
 import com.fintrackerapi.fintracker.services.AuthenticationService;
 import com.fintrackerapi.fintracker.services.JwtService;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,14 +23,14 @@ public class AuthenticationController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterUserDto registerUserDto) {
+    public ResponseEntity<UserResponse> register(@RequestBody RegisterUserDto registerUserDto) {
         UserResponse registeredUser = authenticationService.signUp(registerUserDto);
 
         return ResponseEntity.ok(registeredUser);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> authenticate(@Valid @RequestBody LoginUserDto loginUserDto) {
+    public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) {
         User authenticatedUser = authenticationService.authenticate(loginUserDto);
 
         String jwtToken = jwtService.generateToken(authenticatedUser);

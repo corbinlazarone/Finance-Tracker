@@ -1,6 +1,5 @@
 package com.fintrackerapi.fintracker.controllers;
 
-import com.fintrackerapi.fintracker.entities.User;
 import com.fintrackerapi.fintracker.responses.UserResponse;
 import com.fintrackerapi.fintracker.services.UserService;
 import org.springframework.http.ResponseEntity;
@@ -12,8 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@RequestMapping("/users")
 @RestController
+@RequestMapping("/users")
 public class UserController{
     private final UserService userService;
 
@@ -24,15 +23,8 @@ public class UserController{
     @GetMapping("/me")
     public ResponseEntity<UserResponse> authenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        User currentUser = (User) authentication.getPrincipal();
-        UserResponse userResponse = new UserResponse(
-                currentUser.getId(),
-                currentUser.getFullName(),
-                currentUser.getEmail(),
-                currentUser.getCreatedAt()
-        );
-        return ResponseEntity.ok(userResponse);
+        UserResponse currentUser = userService.findByEmail(authentication.getName());
+        return ResponseEntity.ok(currentUser);
     }
 
     @GetMapping("/")

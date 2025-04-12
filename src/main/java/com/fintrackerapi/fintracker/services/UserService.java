@@ -1,6 +1,7 @@
 package com.fintrackerapi.fintracker.services;
 
 import com.fintrackerapi.fintracker.entities.User;
+import com.fintrackerapi.fintracker.exceptions.ResourceNotFoundException;
 import com.fintrackerapi.fintracker.interfaces.UserInterface;
 import com.fintrackerapi.fintracker.repositories.UserRepo;
 import com.fintrackerapi.fintracker.responses.UserResponse;
@@ -26,6 +27,14 @@ public class UserService implements UserInterface {
         });
 
         return userResponses;
+    }
+
+    @Override
+    public UserResponse findByEmail(String email) {
+        User foundUser = userRepo.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("No user found"));
+
+        return convertToUserResponse(foundUser);
     }
 
     private UserResponse convertToUserResponse(User user) {
