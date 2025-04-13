@@ -63,9 +63,10 @@ public class IncomeService implements IncomeInterface {
     }
 
     @Override
-    public IncomeResponse updateIncomeSource(UUID userId, IncomeDto updatedIncomeSource) {
+    public IncomeResponse updateIncomeSource(UUID userId, UUID incomeSourceId, IncomeDto updatedIncomeSource) {
+
         // Check if the income source exists
-        Income income = incomeRepo.findById(updatedIncomeSource.getId())
+        Income income = incomeRepo.findById(incomeSourceId)
                 .orElseThrow(() -> new ResourceNotFoundException("Income source does not exists"));
 
         // Check if income source belongs to user
