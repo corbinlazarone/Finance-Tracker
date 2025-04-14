@@ -16,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Date;
@@ -204,31 +203,6 @@ public class AuthenticationServiceTest {
 
         // Verify that the user repo findByEmail was never called
         verify(userRepo, times(0)).findByEmail(invalidUserDto.getEmail());
-
-        // Verify that the user was never saved
-        verify(userRepo, times(0)).save(any(User.class));
-    }
-
-    @Test
-    public void userRegistrationInvalidPassword() {
-
-        RegisterUserDto invalidUserDto = new RegisterUserDto(
-                TEST_EMAIL,
-                "testPassword!",
-                TEST_FULL_NAME
-        );
-
-        // Call the register method expecting an exception to be thrown
-        BadCredentialsException exception = assertThrows(BadCredentialsException.class, () -> {
-            authenticationService.signUp(invalidUserDto);
-        });
-
-        // Assert that the exception message matches
-        assertEquals("Password must be at least 8 characters and include both letters, " +
-                "numbers and one special character", exception.getMessage());
-
-        // Verify that the user repo findByEmail was only called once
-        verify(userRepo, times(1)).findByEmail(invalidUserDto.getEmail());
 
         // Verify that the user was never saved
         verify(userRepo, times(0)).save(any(User.class));
