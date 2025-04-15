@@ -231,7 +231,7 @@ public class AuthenticationServiceTest {
 
         // Assert that the result details are correct
         assertEquals(foundUser.getId(), mockUser.getId());
-        assertEquals(foundUser.getFullName(), mockUser.getFullName());
+         assertEquals(foundUser.getFullName(), mockUser.getFullName());
         assertEquals(foundUser.getEmail(), mockUser.getEmail());
         assertEquals(foundUser.getCreatedAt(), mockUser.getCreatedAt());
 

@@ -11,6 +11,7 @@ import com.fintrackerapi.fintracker.interfaces.IncomeInterface;
 import com.fintrackerapi.fintracker.repositories.IncomeRepo;
 import com.fintrackerapi.fintracker.repositories.UserRepo;
 import com.fintrackerapi.fintracker.responses.IncomeResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,13 +20,12 @@ import java.util.UUID;
 
 @Service
 public class IncomeService implements IncomeInterface {
-    private final IncomeRepo incomeRepo;
-    private final UserRepo userRepo;
 
-    public IncomeService(IncomeRepo incomeRepo, UserRepo userRepo) {
-        this.incomeRepo = incomeRepo;
-        this.userRepo = userRepo;
-    }
+    @Autowired
+    private IncomeRepo incomeRepo;
+
+    @Autowired
+    private UserRepo userRepo;
 
     @Override
     public List<IncomeResponse> getIncomeSources(UUID userId) {
@@ -39,55 +39,21 @@ public class IncomeService implements IncomeInterface {
 
     @Override
     public IncomeResponse createIncomeSource(UUID userId, IncomeDto incomeDto) {
-        if (incomeDto.getPaymentDateOne() < 1
-                || incomeDto.getPaymentDateOne() > 31
-                || incomeDto.getPaymentDateTwo() < 1
-                || incomeDto.getPaymentDateTwo() > 31) {
-            throw new InvalidPaymentDateException("Invalid Payment Payment Date for");
-        }
-
-        Income newIncome = new Income();
-        newIncome.setName(incomeDto.getName());
-        newIncome.setAmount(incomeDto.getAmount());
-        newIncome.setIsBiweekly(incomeDto.IsBiweekly());
-        newIncome.setPaymentDateOne(incomeDto.getPaymentDateOne());
-        newIncome.setPaymentDateTwo(incomeDto.getPaymentDateTwo());
-
-        User user = userRepo.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User with id: " + userId + " Not Found"));
-
+        checkPaymentDatesAreValid(incomeDto);
+        Income newIncome = convertToIncomeEntity(incomeDto);
+        User user = checkIfUserExists(userId);
         newIncome.setUser(user);
-
         Income savedIncome = incomeRepo.save(newIncome);
+
         return converToIncomeResponse(savedIncome);
     }
 
     @Override
     public IncomeResponse updateIncomeSource(UUID userId, UUID incomeSourceId, IncomeDto updatedIncomeSource) {
-
-        // Check if the income source exists
-        Income income = incomeRepo.findById(incomeSourceId)
-                .orElseThrow(() -> new ResourceNotFoundException("Income source does not exists"));
-
-        // Check if income source belongs to user
-        UUID incomeUserId = income.getUser().getId();
-        if (!incomeUserId.equals(userId)) {
-            throw new NotPermittedException("You don't have permission to update this income source!");
-        }
-
-        if (updatedIncomeSource.getPaymentDateOne() < 1
-                || updatedIncomeSource.getPaymentDateOne() > 31
-                || updatedIncomeSource.getPaymentDateTwo() < 1
-                || updatedIncomeSource.getPaymentDateTwo() > 31) {
-            throw new InvalidPaymentDateException();
-        }
-
-        income.setName(updatedIncomeSource.getName());
-        income.setAmount(updatedIncomeSource.getAmount());
-        income.setIsBiweekly(updatedIncomeSource.IsBiweekly());
-        income.setPaymentDateOne(updatedIncomeSource.getPaymentDateOne());
-        income.setPaymentDateTwo(updatedIncomeSource.getPaymentDateTwo());
-
+        Income income = checkIfIncomeSourceExists(incomeSourceId);
+        checkIfIncomeSourceBelongsToUser(income, userId);
+        checkPaymentDatesAreValid(updatedIncomeSource);
+        convertToIncomeEntity(updatedIncomeSource);
         Income savedIncome = incomeRepo.save(income);
 
         return converToIncomeResponse(savedIncome);
@@ -95,19 +61,36 @@ public class IncomeService implements IncomeInterface {
 
     @Override
     public boolean deleteIncomeSource(UUID userId, UUID incomeSourceId) {
-        // Check if the income source exists
-        Income income = incomeRepo.findById(incomeSourceId)
-                .orElseThrow(() -> new ResourceNotFoundException("Income source does not exits"));
-
-        // Check if income source belongs to user
-        UUID incomeUserId = income.getUser().getId();
-        if (!incomeUserId.equals(userId)) {
-            throw new NotPermittedException("User does not have Permission to delete this income source");
-        }
-
+        Income income = checkIfIncomeSourceExists(incomeSourceId);
+        checkIfIncomeSourceBelongsToUser(income, userId);
         incomeRepo.deleteById(incomeSourceId);
 
         return true;
+    }
+
+    private void checkPaymentDatesAreValid(IncomeDto incomeDto) {
+        if (incomeDto.getPaymentDateOne() < 1
+                || incomeDto.getPaymentDateOne() > 31
+                || incomeDto.getPaymentDateTwo() < 1
+                || incomeDto.getPaymentDateTwo() > 31) {
+            throw new InvalidPaymentDateException("Invalid Payment Date");
+        }
+    }
+
+    private Income convertToIncomeEntity(IncomeDto incomeDto) {
+        Income income = new Income();
+        income.setName(incomeDto.getName());
+        income.setAmount(incomeDto.getAmount());
+        income.setIsBiweekly(incomeDto.IsBiweekly());
+        income.setPaymentDateOne(incomeDto.getPaymentDateOne());
+        income.setPaymentDateTwo(incomeDto.getPaymentDateTwo());
+
+        return income;
+    }
+
+    private User checkIfUserExists(UUID userId) {
+        return userRepo.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User with id: " + userId + " Not Found"));
     }
 
     private IncomeResponse converToIncomeResponse(Income income) {
@@ -121,5 +104,17 @@ public class IncomeService implements IncomeInterface {
                 income.getCreatedAt(),
                 income.getUpdated_at()
         );
+    }
+
+    private Income checkIfIncomeSourceExists(UUID incomeSourceId) {
+        return incomeRepo.findById(incomeSourceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Income source does not exists"));
+    }
+
+    private void checkIfIncomeSourceBelongsToUser(Income income, UUID userId) {
+        UUID incomeUserId = income.getUser().getId();
+        if (!incomeUserId.equals(userId)) {
+            throw new NotPermittedException("You don't have permission to update this income source!");
+        }
     }
 }
