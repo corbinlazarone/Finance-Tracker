@@ -9,6 +9,8 @@ public class IncomeDto {
     private Integer paymentDateOne;
     private Integer paymentDateTwo;
 
+    public IncomeDto() {}
+
     public IncomeDto(String name, BigDecimal amount, boolean isBiweekly, Integer paymentDateOne, Integer paymentDateTwo) {
         this.name = name;
         this.amount = amount;

@@ -1,6 +1,7 @@
 package com.fintrackerapi.fintracker.ServiceTests;
 
 
+import com.fintrackerapi.fintracker.components.PasswordValidator;
 import com.fintrackerapi.fintracker.dtos.LoginUserDto;
 import com.fintrackerapi.fintracker.dtos.RegisterUserDto;
 import com.fintrackerapi.fintracker.entities.User;
@@ -47,6 +48,9 @@ public class AuthenticationServiceTest {
     @Mock
     private AuthenticationManager authenticationManager;
 
+    @Mock
+    private PasswordValidator passwordValidator;
+
     @InjectMocks
     private AuthenticationService authenticationService;
 
@@ -83,6 +87,9 @@ public class AuthenticationServiceTest {
 
         // Mock User entity for convertToUserResponse method
         when(userRepo.save(any(User.class))).thenReturn(savedUser);
+
+        // Mock password validator
+        doNothing().when(passwordValidator).Validator(registerUserDto.getPassword());
 
         // Mock password encoder
         when(passwordEncoder.encode(registerUserDto.getPassword())).thenReturn("encodedPassword");

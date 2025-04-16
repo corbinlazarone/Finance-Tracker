@@ -1,9 +1,16 @@
-package com.fintrackerapi.fintracker.utils;
+package com.fintrackerapi.fintracker.components;
 
+import com.fintrackerapi.fintracker.exceptions.NotPermittedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PasswordValidator {
-    public static void passwordValidator(String password) {
+    public void Validator(String password) {
+        if (password == null) {
+            throw new NotPermittedException("Password can not be null");
+        }
+
         // Minimum 8 chars, at least one letter, one number, and one special character
         String regex = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*?&_\\-#])[A-Za-z\\d@$!%*?&_\\-#]{8,}$";
         if (!password.matches(regex)) {

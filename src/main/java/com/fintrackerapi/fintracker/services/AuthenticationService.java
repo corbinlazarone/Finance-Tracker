@@ -1,6 +1,6 @@
 package com.fintrackerapi.fintracker.services;
 
-import com.fintrackerapi.fintracker.utils.PasswordValidator;
+import com.fintrackerapi.fintracker.components.PasswordValidator;
 import com.fintrackerapi.fintracker.dtos.LoginUserDto;
 import com.fintrackerapi.fintracker.dtos.RegisterUserDto;
 import com.fintrackerapi.fintracker.entities.User;
@@ -27,13 +27,16 @@ public class AuthenticationService implements AuthenticationInterface {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    private PasswordValidator passwordValidator;
+
     @Override
     public UserResponse signUp(RegisterUserDto input) {
         basicNullChecksForRegisterUserInput(input);
         checkForEmptyValues(input);
         isValidEmail(input.getEmail());
         checkIfEmailAlreadyExists(input);
-        PasswordValidator.passwordValidator(input.getPassword());
+        passwordValidator.Validator(input.getPassword());
         User user = convertRegisterDtoToUserEntity(input);
         User savedUser = userRepo.save(user);
 

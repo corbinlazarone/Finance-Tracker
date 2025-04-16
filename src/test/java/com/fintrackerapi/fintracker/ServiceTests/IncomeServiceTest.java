@@ -1,7 +1,10 @@
 package com.fintrackerapi.fintracker.ServiceTests;
 
+import com.fintrackerapi.fintracker.dtos.IncomeDto;
 import com.fintrackerapi.fintracker.entities.Income;
 import com.fintrackerapi.fintracker.entities.User;
+import com.fintrackerapi.fintracker.exceptions.InvalidPaymentDateException;
+import com.fintrackerapi.fintracker.exceptions.UserNotFoundException;
 import com.fintrackerapi.fintracker.repositories.IncomeRepo;
 import com.fintrackerapi.fintracker.repositories.UserRepo;
 import com.fintrackerapi.fintracker.responses.IncomeResponse;
@@ -13,26 +16,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-/**
- * TEST CASES
- * - Test successful get all income sources
- * - Test empty get all income sources
- * - Test create income source with valid income source
- * - Test create income source with invalid income source
- * - Test update income source with valid income source
- * - Test update income source with invalid income source
- * - Test successful delete income source
- * - Test failed delete income source
- */
 
 @ExtendWith(MockitoExtension.class)
 public class IncomeServiceTest {
@@ -121,5 +109,124 @@ public class IncomeServiceTest {
 
         // Verify that findByUserId was only called once
         verify(incomeRepo, times(1)).findByUserId(userId);
+    }
+
+    @Test
+    public void getIncomeSourceFailure() {
+        UUID userId = UUID.randomUUID();
+
+        // Mock findByUserId to return empty users list
+        when(incomeRepo.findByUserId(userId)).thenReturn(Collections.emptyList());
+
+        // Call the getIncomeSources method
+        List<IncomeResponse> result = incomeService.getIncomeSources(userId);
+
+        // Assert that the result is not null but is empty
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+
+        // Verify that the income repo was only called once
+        verify(incomeRepo, times(1)).findByUserId(userId);
+    }
+
+    @Test
+    public void createIncomeSourceWithValidIncome() {
+
+        // Mock data
+        UUID userId = UUID.randomUUID();
+        User user = new User();
+        user.setId(userId);
+
+        IncomeDto incomeDto = new IncomeDto();
+        incomeDto.setName("Income Name");
+        incomeDto.setAmount(BigDecimal.valueOf(123));
+        incomeDto.setBiweekly(true);
+        incomeDto.setPaymentDateOne(1);
+        incomeDto.setPaymentDateTwo(15);
+
+        Income savedIncome = new Income();
+        savedIncome.setId(UUID.randomUUID());
+        savedIncome.setName(incomeDto.getName());
+        savedIncome.setAmount(incomeDto.getAmount());
+        savedIncome.setIsBiweekly(true);
+        savedIncome.setPaymentDateOne(1);
+        savedIncome.setPaymentDateTwo(15);
+        savedIncome.setUser(user);
+        savedIncome.setCreatedAt(new Date());
+        savedIncome.setUpdated_at(new Date());
+
+        // Mock user repo to check if user exists
+        when(userRepo.findById(userId)).thenReturn(Optional.of(user));
+
+        // Mock income repo save method
+        when(incomeRepo.save(any(Income.class))).thenReturn(savedIncome);
+
+        // Call the createIncomeSource method
+        IncomeResponse newIncome = incomeService.createIncomeSource(userId, incomeDto);
+
+        // Assert that newIncome is not null
+        assertNotNull(newIncome);
+
+        // Assert that saved income details are correct
+        assertEquals(incomeDto.getName(), newIncome.getName());
+        assertEquals(incomeDto.getAmount(), newIncome.getAmount());
+        assertEquals(incomeDto.IsBiweekly(), newIncome.isBiweekly());
+        assertEquals(incomeDto.getPaymentDateOne(), newIncome.getPaymentDateOne());
+
+        // Verify that the income repo save method was only called once
+        verify(incomeRepo, times(1)).save(any(Income.class));
+
+        // Verify that user repo findById was only called once
+        verify(userRepo, times(1)).findById(userId);
+    }
+
+    @Test
+    public void createIncomeSourceInvalidPaymentDates() {
+
+        // Mock data
+        UUID userId = UUID.randomUUID();
+        IncomeDto incomeDto = new IncomeDto();
+        incomeDto.setPaymentDateOne(-1);
+        incomeDto.setPaymentDateTwo(32);
+
+        // Call createIncomeSource service method
+        InvalidPaymentDateException exception = assertThrows(InvalidPaymentDateException.class, () -> {
+           incomeService.createIncomeSource(userId, incomeDto);
+        });
+
+        // Assert that the exception messages matches
+        assertEquals("Invalid Payment Date", exception.getMessage());
+
+        // Verify that user and income repo were never called
+        verify(userRepo, times(0)).findById(userId);
+        verify(incomeRepo, times(0)).save(any(Income.class));
+    }
+
+    @Test
+    public void createIncomeSourceUserDoesNotExists() {
+
+        // Mock data
+        UUID userId = UUID.randomUUID();
+        User user = new User();
+        user.setId(userId);
+
+        IncomeDto incomeDto = new IncomeDto();
+        incomeDto.setName("Income Name");
+        incomeDto.setAmount(BigDecimal.valueOf(123));
+        incomeDto.setBiweekly(true);
+        incomeDto.setPaymentDateOne(1);
+        incomeDto.setPaymentDateTwo(15);
+
+        // Call createIncomeSource service method
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> {
+            incomeService.createIncomeSource(userId, incomeDto);
+        });
+
+        // Assert that the exception message matches
+        assertEquals("User with id: " + userId + " Not Found", exception.getMessage());
+
+        // Verify user repo was only called once and income repo was never called
+        verify(userRepo, times(1)).findById(userId);
+        verify(incomeRepo, times(0)).save(any(Income.class));
     }
 }
