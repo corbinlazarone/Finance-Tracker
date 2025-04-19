@@ -1,13 +1,11 @@
-package com.fintrackerapi.fintracker.components;
+package com.fintrackerapi.fintracker.ComponentTests;
 
+import com.fintrackerapi.fintracker.components.PasswordValidator;
 import com.fintrackerapi.fintracker.exceptions.NotPermittedException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.stereotype.Component;
 
 import static org.junit.jupiter.api.Assertions.*;
 

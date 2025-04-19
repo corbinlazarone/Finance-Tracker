@@ -1,5 +1,6 @@
 package com.fintrackerapi.fintracker.services;
 
+import com.fintrackerapi.fintracker.components.IncomeConverter;
 import com.fintrackerapi.fintracker.dtos.IncomeDto;
 import com.fintrackerapi.fintracker.entities.Income;
 import com.fintrackerapi.fintracker.entities.User;
@@ -27,12 +28,15 @@ public class IncomeService implements IncomeInterface {
     @Autowired
     private UserRepo userRepo;
 
+    @Autowired
+    private IncomeConverter incomeConverter;
+
     @Override
     public List<IncomeResponse> getIncomeSources(UUID userId) {
         List<IncomeResponse> incomeSourceResponses = new ArrayList<>();
 
         incomeRepo.findByUserId(userId).forEach(income -> {
-            incomeSourceResponses.add(converToIncomeResponse(income));
+            incomeSourceResponses.add(incomeConverter.convertToIncomeResponse(income));
         });
         return incomeSourceResponses;
     }
@@ -40,12 +44,12 @@ public class IncomeService implements IncomeInterface {
     @Override
     public IncomeResponse createIncomeSource(UUID userId, IncomeDto incomeDto) {
         checkPaymentDatesAreValid(incomeDto);
-        Income newIncome = convertToIncomeEntity(incomeDto);
+        Income newIncome = incomeConverter.convertToIncomeEntity(incomeDto);
         User user = checkIfUserExists(userId);
         newIncome.setUser(user);
         Income savedIncome = incomeRepo.save(newIncome);
 
-        return converToIncomeResponse(savedIncome);
+        return incomeConverter.convertToIncomeResponse(savedIncome);
     }
 
     @Override
@@ -53,10 +57,10 @@ public class IncomeService implements IncomeInterface {
         Income income = checkIfIncomeSourceExists(incomeSourceId);
         checkIfIncomeSourceBelongsToUser(income, userId);
         checkPaymentDatesAreValid(updatedIncomeSource);
-        convertToIncomeEntity(updatedIncomeSource);
+        incomeConverter.convertToIncomeEntity(updatedIncomeSource);
         Income savedIncome = incomeRepo.save(income);
 
-        return converToIncomeResponse(savedIncome);
+        return incomeConverter.convertToIncomeResponse(savedIncome);
     }
 
     @Override
@@ -77,33 +81,9 @@ public class IncomeService implements IncomeInterface {
         }
     }
 
-    private Income convertToIncomeEntity(IncomeDto incomeDto) {
-        Income income = new Income();
-        income.setName(incomeDto.getName());
-        income.setAmount(incomeDto.getAmount());
-        income.setIsBiweekly(incomeDto.IsBiweekly());
-        income.setPaymentDateOne(incomeDto.getPaymentDateOne());
-        income.setPaymentDateTwo(incomeDto.getPaymentDateTwo());
-
-        return income;
-    }
-
     private User checkIfUserExists(UUID userId) {
         return userRepo.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with id: " + userId + " Not Found"));
-    }
-
-    private IncomeResponse converToIncomeResponse(Income income) {
-        return new IncomeResponse(
-                income.getId(),
-                income.getName(),
-                income.getAmount(),
-                income.getIsBiWeekly(),
-                income.getPaymentDateOne(),
-                income.getPaymentDateTwo(),
-                income.getCreatedAt(),
-                income.getUpdated_at()
-        );
     }
 
     private Income checkIfIncomeSourceExists(UUID incomeSourceId) {
