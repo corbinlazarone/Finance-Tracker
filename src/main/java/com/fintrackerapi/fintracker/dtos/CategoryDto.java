@@ -9,6 +9,8 @@ public class CategoryDto {
     private BigDecimal amountAllocated;
     private LocalDate dueDate;
 
+    public CategoryDto() {}
+
     public CategoryDto(String name, String description, BigDecimal amountAllocated, LocalDate dueDate) {
         this.name = name;
         this.description = description;

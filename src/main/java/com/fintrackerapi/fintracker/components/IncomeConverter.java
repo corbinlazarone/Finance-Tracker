@@ -25,8 +25,6 @@ public class IncomeConverter {
     public IncomeResponse convertToIncomeResponse(Income income) {
         if (income == null) throw new RuntimeException("Income entity can not be null");
 
-        System.out.println(income.getId());
-
         return new IncomeResponse(
                 income.getId(),
                 income.getName(),

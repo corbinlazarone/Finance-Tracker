@@ -14,6 +14,14 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * TEST CASES
+ * - Test convert income dto to income entity successfully
+ * - Test convert income dto to income entity failure
+ * - Test convert income entity to income response successfully
+ * - Test convert income entity to income response failure
+ */
+
 @ExtendWith(MockitoExtension.class)
 public class IncomeConverterTest {
 

@@ -10,6 +10,14 @@ import com.fintrackerapi.fintracker.responses.TransactionResponse;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Budget Service should have
+ *  - get Budget
+ *  - get all categories for budget
+ *  - update budget
+ *  - delete a budget
+ */
+
 public interface BudgetInterface {
     BudgetResponse getBudget(UUID userId);
     BudgetResponse createNewBudget(UUID userId, BudgetDto budgetDto);
