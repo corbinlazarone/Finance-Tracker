@@ -15,6 +15,8 @@ public class CategoryResponse {
     private Date createdAt;
     private Date updatedAt;
 
+    public CategoryResponse() {}
+
     public CategoryResponse(UUID id, String name, String description, BigDecimal amountAllocated, BigDecimal amountSpent, LocalDate dueDate, Date createdAt, Date updatedAt) {
         this.id = id;
         this.name = name;
