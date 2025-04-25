@@ -1,4 +1,4 @@
-package com.fintrackerapi.fintracker.ComponentTests;
+package com.fintrackerapi.fintracker.UnitTests.ComponentTests;
 
 import com.fintrackerapi.fintracker.components.CheckBudget;
 import com.fintrackerapi.fintracker.entities.Budget;

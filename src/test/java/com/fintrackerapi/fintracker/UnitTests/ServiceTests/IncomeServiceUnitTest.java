@@ -1,4 +1,4 @@
-package com.fintrackerapi.fintracker.ServiceTests;
+package com.fintrackerapi.fintracker.UnitTests.ServiceTests;
 
 import com.fintrackerapi.fintracker.components.IncomeConverter;
 import com.fintrackerapi.fintracker.dtos.IncomeDto;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
-public class IncomeServiceTest {
+public class IncomeServiceUnitTest {
 
     @Mock
     private IncomeRepo incomeRepo;
@@ -80,32 +80,8 @@ public class IncomeServiceTest {
         incomes.add(income1);
         incomes.add(income2);
 
-        // Mock incomeConverter
-        when(incomeConverter.convertToIncomeResponse(income1)).thenReturn(
-                new IncomeResponse(
-                        income1.getId(),
-                        income1.getName(),
-                        income1.getAmount(),
-                        income1.getIsBiWeekly(),
-                        income1.getPaymentDateOne(),
-                        income1.getPaymentDateTwo(),
-                        income1.getCreatedAt(),
-                        income1.getUpdated_at()
-                )
-        );
-
-        when(incomeConverter.convertToIncomeResponse(income2)).thenReturn(
-                new IncomeResponse(
-                        income2.getId(),
-                        income2.getName(),
-                        income2.getAmount(),
-                        income2.getIsBiWeekly(),
-                        income2.getPaymentDateOne(),
-                        income2.getPaymentDateTwo(),
-                        income2.getCreatedAt(),
-                        income2.getUpdated_at()
-                )
-        );
+        IncomeConverter.convertToIncomeResponse(income1);
+        IncomeConverter.convertToIncomeResponse(income2);
 
         // Mock findByUserId to return mock income sources
         when(incomeRepo.findByUserId(userId)).thenReturn(incomes);
@@ -186,20 +162,8 @@ public class IncomeServiceTest {
         savedIncome.setCreatedAt(new Date());
         savedIncome.setUpdated_at(new Date());
 
-        // Mock incomeConverter
-        when(incomeConverter.convertToIncomeEntity(incomeDto)).thenReturn(savedIncome);
-        when(incomeConverter.convertToIncomeResponse(savedIncome)).thenReturn(
-                new IncomeResponse(
-                        savedIncome.getId(),
-                        savedIncome.getName(),
-                        savedIncome.getAmount(),
-                        savedIncome.getIsBiWeekly(),
-                        savedIncome.getPaymentDateOne(),
-                        savedIncome.getPaymentDateTwo(),
-                        savedIncome.getCreatedAt(),
-                        savedIncome.getUpdated_at()
-                )
-        );
+        IncomeConverter.convertToIncomeEntity(incomeDto);
+        IncomeConverter.convertToIncomeResponse(savedIncome);
 
         // Mock user repo to check if user exists
         when(userRepo.findById(userId)).thenReturn(Optional.of(user));

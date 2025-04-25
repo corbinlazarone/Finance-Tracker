@@ -1,4 +1,4 @@
-package com.fintrackerapi.fintracker.ServiceTests;
+package com.fintrackerapi.fintracker.UnitTests.ServiceTests;
 
 
 import com.fintrackerapi.fintracker.components.PasswordValidator;
@@ -37,7 +37,7 @@ import static org.mockito.Mockito.*;
  */
 
 @ExtendWith(MockitoExtension.class)
-public class AuthenticationServiceTest {
+public class AuthenticationServiceUnitTest {
 
     @Mock
     private UserRepo userRepo;

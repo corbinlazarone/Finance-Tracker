@@ -1,4 +1,4 @@
-package com.fintrackerapi.fintracker.RepoTests;
+package com.fintrackerapi.fintracker.IntergrationTests.RepoTests;
 
 import com.fintrackerapi.fintracker.entities.Income;
 import com.fintrackerapi.fintracker.entities.User;

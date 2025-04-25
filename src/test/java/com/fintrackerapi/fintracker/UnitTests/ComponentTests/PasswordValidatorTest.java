@@ -1,4 +1,4 @@
-package com.fintrackerapi.fintracker.ComponentTests;
+package com.fintrackerapi.fintracker.UnitTests.ComponentTests;
 
 import com.fintrackerapi.fintracker.components.PasswordValidator;
 import com.fintrackerapi.fintracker.exceptions.NotPermittedException;

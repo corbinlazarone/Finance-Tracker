@@ -28,15 +28,12 @@ public class IncomeService implements IncomeInterface {
     @Autowired
     private UserRepo userRepo;
 
-    @Autowired
-    private IncomeConverter incomeConverter;
-
     @Override
     public List<IncomeResponse> getIncomeSources(UUID userId) {
         List<IncomeResponse> incomeSourceResponses = new ArrayList<>();
 
         incomeRepo.findByUserId(userId).forEach(income -> {
-            incomeSourceResponses.add(incomeConverter.convertToIncomeResponse(income));
+            incomeSourceResponses.add(IncomeConverter.convertToIncomeResponse(income));
         });
         return incomeSourceResponses;
     }
@@ -44,12 +41,12 @@ public class IncomeService implements IncomeInterface {
     @Override
     public IncomeResponse createIncomeSource(UUID userId, IncomeDto incomeDto) {
         checkPaymentDatesAreValid(incomeDto);
-        Income newIncome = incomeConverter.convertToIncomeEntity(incomeDto);
+        Income newIncome = IncomeConverter.convertToIncomeEntity(incomeDto);
         User user = checkIfUserExists(userId);
         newIncome.setUser(user);
         Income savedIncome = incomeRepo.save(newIncome);
 
-        return incomeConverter.convertToIncomeResponse(savedIncome);
+        return IncomeConverter.convertToIncomeResponse(savedIncome);
     }
 
     @Override
@@ -57,10 +54,10 @@ public class IncomeService implements IncomeInterface {
         Income income = checkIfIncomeSourceExists(incomeSourceId);
         checkIfIncomeSourceBelongsToUser(income, userId);
         checkPaymentDatesAreValid(updatedIncomeSource);
-        incomeConverter.convertToIncomeEntity(updatedIncomeSource);
+        IncomeConverter.convertToIncomeEntity(updatedIncomeSource);
         Income savedIncome = incomeRepo.save(income);
 
-        return incomeConverter.convertToIncomeResponse(savedIncome);
+        return IncomeConverter.convertToIncomeResponse(savedIncome);
     }
 
     @Override

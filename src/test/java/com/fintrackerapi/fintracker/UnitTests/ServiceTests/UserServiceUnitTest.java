@@ -1,4 +1,4 @@
-package com.fintrackerapi.fintracker.ServiceTests;
+package com.fintrackerapi.fintracker.UnitTests.ServiceTests;
 
 import com.fintrackerapi.fintracker.entities.User;
 import com.fintrackerapi.fintracker.exceptions.ResourceNotFoundException;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
  */
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+public class UserServiceUnitTest {
 
     @Mock
     private UserRepo userRepo;
@@ -70,6 +70,7 @@ public class UserServiceTest {
         assertEquals(user1.getFullName(), result.get(0).getFullName());
         assertEquals(user1.getEmail(), result.get(0).getEmail());
         assertEquals(userId2, result.get(1).getId());
+        assertEquals(user2.getEmail(), result.get(1).getEmail());
         assertEquals(user2.getFullName(), result.get(1).getFullName());
 
         // Verify that user repo findAll was only called once

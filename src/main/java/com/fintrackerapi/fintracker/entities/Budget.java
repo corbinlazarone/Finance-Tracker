@@ -166,17 +166,4 @@ public class Budget {
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
-
-    // Utility method to calculate the total monthly amount (not stored in database)
-    @Transient
-    public BigDecimal getMonthlyAmount() {
-        if (firstBiWeeklyAmount == null && secondBiWeeklyAmount == null) {
-            return BigDecimal.ZERO;
-        }
-
-        BigDecimal first = (firstBiWeeklyAmount != null) ? firstBiWeeklyAmount : BigDecimal.ZERO;
-        BigDecimal second = (secondBiWeeklyAmount != null) ? secondBiWeeklyAmount : BigDecimal.ZERO;
-
-        return first.add(second);
-    }
 }

@@ -1,4 +1,4 @@
-package com.fintrackerapi.fintracker.ControllerTests;
+package com.fintrackerapi.fintracker.UnitTests.ControllerTests;
 
 
 import com.fintrackerapi.fintracker.configs.JwtAuthenticationFilter;

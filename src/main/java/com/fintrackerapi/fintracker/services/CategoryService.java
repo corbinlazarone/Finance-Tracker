@@ -2,26 +2,28 @@ package com.fintrackerapi.fintracker.services;
 
 import com.fintrackerapi.fintracker.components.CategoryConverter;
 import com.fintrackerapi.fintracker.components.CheckBudget;
+import com.fintrackerapi.fintracker.components.TransactionConverter;
 import com.fintrackerapi.fintracker.entities.Budget;
 import com.fintrackerapi.fintracker.entities.Category;
+import com.fintrackerapi.fintracker.entities.Transaction;
 import com.fintrackerapi.fintracker.interfaces.CategoryInterface;
+import com.fintrackerapi.fintracker.repositories.CategoryRepo;
 import com.fintrackerapi.fintracker.responses.CategoryResponse;
+import com.fintrackerapi.fintracker.responses.TransactionResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class CategoryService implements CategoryInterface {
 
     @Autowired
-    private CategoryConverter categoryConverter;
+    private CheckBudget checkBudget;
 
     @Autowired
-    private CheckBudget checkBudget;
+    private CategoryRepo categoryRepo;
 
     @Override
     @Transactional
@@ -32,9 +34,26 @@ public class CategoryService implements CategoryInterface {
         Set<CategoryResponse> categoryResponses = new HashSet<>();
 
         for (Category category: categories) {
-            categoryResponses.add(categoryConverter.convertToCategoryResponse(category));
+            categoryResponses.add(CategoryConverter.convertToCategoryResponse(category));
         }
 
         return categoryResponses;
+    }
+
+    @Override
+    public List<TransactionResponse> getTransactionsByCategory(UUID userId, UUID categoryId) {
+        List<TransactionResponse> transactionResponses = new ArrayList<>();
+        checkBudget.checkBudgetExistsAndBelongsToUser(userId);
+
+        Optional<Category> foundCategory = categoryRepo.findById(categoryId);
+
+        if (foundCategory.isPresent()) {
+            List<Transaction> foundTransactions = foundCategory.get().getTransactions();
+            foundTransactions.forEach(transaction -> {
+                transactionResponses.add(TransactionConverter.convertToTransactionResponse(transaction));
+            });
+        }
+
+        return transactionResponses;
     }
 }

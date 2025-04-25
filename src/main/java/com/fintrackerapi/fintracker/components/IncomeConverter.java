@@ -8,8 +8,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class IncomeConverter {
 
-    // Convert to Income Entity
-    public Income convertToIncomeEntity(IncomeDto incomeDto) {
+    private IncomeConverter() {}
+
+    public static Income convertToIncomeEntity(IncomeDto incomeDto) {
         if (incomeDto == null) throw new RuntimeException("IncomeDto can not be null");
         Income income = new Income();
         income.setName(incomeDto.getName());
@@ -21,8 +22,7 @@ public class IncomeConverter {
         return income;
     }
 
-    // Convert to Income Response
-    public IncomeResponse convertToIncomeResponse(Income income) {
+    public static IncomeResponse convertToIncomeResponse(Income income) {
         if (income == null) throw new RuntimeException("Income entity can not be null");
 
         return new IncomeResponse(

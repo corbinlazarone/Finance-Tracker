@@ -10,7 +10,9 @@ import java.math.BigDecimal;
 @Component
 public class CategoryConverter {
 
-    public Category convertToCategoryEntity(CategoryDto categoryDto) {
+    private CategoryConverter() {}
+
+    public static Category convertToCategoryEntity(CategoryDto categoryDto) {
         if (categoryDto == null) throw new RuntimeException("CategoryDto can not be null");
 
         Category category = new Category();
@@ -23,7 +25,7 @@ public class CategoryConverter {
         return category;
     }
 
-    public CategoryResponse convertToCategoryResponse(Category category) {
+    public static CategoryResponse convertToCategoryResponse(Category category) {
         if (category == null) throw new RuntimeException("Category can not be null");
 
         return new CategoryResponse(

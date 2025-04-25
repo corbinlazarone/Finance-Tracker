@@ -1,4 +1,4 @@
-package com.fintrackerapi.fintracker.ComponentTests;
+package com.fintrackerapi.fintracker.UnitTests.ComponentTests;
 
 import com.fintrackerapi.fintracker.components.IncomeConverter;
 import com.fintrackerapi.fintracker.dtos.IncomeDto;
@@ -25,8 +25,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(MockitoExtension.class)
 public class IncomeConverterTest {
 
-    private final IncomeConverter incomeConverter = new IncomeConverter();
-
     @Test
     public void convertToIncomeEntitySuccess() {
 
@@ -37,7 +35,7 @@ public class IncomeConverterTest {
         mockDto.setPaymentDateOne(1);
         mockDto.setPaymentDateTwo(15);
 
-        Income convertedIncome = incomeConverter.convertToIncomeEntity(mockDto);
+        Income convertedIncome = IncomeConverter.convertToIncomeEntity(mockDto);
 
         assertNotNull(convertedIncome);
         assertEquals(convertedIncome.getName(), mockDto.getName());
@@ -50,7 +48,7 @@ public class IncomeConverterTest {
     @Test
     public void convertIncomeEntityFailure() {
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-           incomeConverter.convertToIncomeEntity(null);
+           IncomeConverter.convertToIncomeEntity(null);
         });
 
         assertEquals("IncomeDto can not be null", exception.getMessage());
@@ -70,7 +68,7 @@ public class IncomeConverterTest {
         income.setCreatedAt(new Date());
         income.setUpdated_at(new Date());
 
-        IncomeResponse incomeResponse = incomeConverter.convertToIncomeResponse(income);
+        IncomeResponse incomeResponse = IncomeConverter.convertToIncomeResponse(income);
 
         assertNotNull(incomeResponse);
         assertEquals(incomeResponse.getId(), income.getId());
@@ -83,7 +81,7 @@ public class IncomeConverterTest {
     @Test
     public void convertIncomeResponseFailure() {
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            incomeConverter.convertToIncomeResponse(null);
+            IncomeConverter.convertToIncomeResponse(null);
         });
 
         assertEquals("Income entity can not be null", exception.getMessage());
